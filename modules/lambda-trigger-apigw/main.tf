@@ -1,9 +1,10 @@
 # Edited by CLAUDE
 
 resource "aws_apigatewayv2_api" "this" {
-  name          = "${var.function_name}-http-api"
-  protocol_type = "HTTP"
-  tags          = var.tags
+  name                         = "${var.function_name}-http-api"
+  protocol_type                = "HTTP"
+  disable_execute_api_endpoint = var.disable_execute_api_endpoint
+  tags                         = var.tags
 }
 
 resource "aws_apigatewayv2_stage" "this" {

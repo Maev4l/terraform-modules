@@ -16,13 +16,14 @@ locals {
 }
 
 resource "aws_lambda_function" "this" {
-  function_name = var.function_name
-  role          = local.role_arn
-  description   = var.description
-  memory_size   = var.memory_size
-  timeout       = var.timeout
-  publish       = var.publish
-  layers        = local.is_zip ? var.layers : []
+  function_name                  = var.function_name
+  role                           = local.role_arn
+  description                    = var.description
+  memory_size                    = var.memory_size
+  timeout                        = var.timeout
+  publish                        = var.publish
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  layers                         = local.is_zip ? var.layers : []
 
   # Packaging mode
   package_type     = local.is_zip ? "Zip" : "Image"

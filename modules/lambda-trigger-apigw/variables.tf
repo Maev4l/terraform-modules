@@ -51,6 +51,12 @@ variable "authorizer" {
   default = null
 }
 
+variable "disable_execute_api_endpoint" {
+  description = "Whether to disable the default execute API endpoint. Set to true to force traffic through custom domain only."
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   description = "Map of tags to apply to all resources"
   type        = map(string)

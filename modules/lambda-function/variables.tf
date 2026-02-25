@@ -80,6 +80,12 @@ variable "environment_variables" {
   default     = {}
 }
 
+variable "reserved_concurrent_executions" {
+  description = "Reserved concurrent executions for the function. Set to 0 to throttle (disable). Leave null for unreserved."
+  type        = number
+  default     = null
+}
+
 # --- Optional: IAM ---
 
 variable "existing_role_arn" {
