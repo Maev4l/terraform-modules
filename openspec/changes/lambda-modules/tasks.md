@@ -50,5 +50,5 @@
 ## 8. Validation
 
 - [x] 8.1 Run `terraform fmt -recursive` on all modules
-- [ ] 8.2 Run `terraform validate` on each module (blocked: provider dev override prevents terraform init)
-- [ ] 8.3 Run `terraform validate` on each example (blocked: provider dev override prevents terraform init)
+- [x] 8.2 Run `terraform validate` on each module
+- [x] 8.3 Run `terraform validate` on each example

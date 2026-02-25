@@ -2,60 +2,76 @@
 
 # lambda-trigger-cognito
 
-Wires a Lambda function to one or more Cognito User Pool trigger points, enabling custom authentication and user lifecycle logic.
+Grants a Cognito User Pool permission to invoke a Lambda function.
+
+> **Note:** This module only creates the `aws_lambda_permission` resource. The actual trigger wiring must be done in your `aws_cognito_user_pool` resource's `lambda_config` block. This is an AWS limitation - Cognito Lambda triggers cannot be attached standalone like S3, SNS, or SQS triggers.
 
 ## Usage
 
 ```hcl
-module "cognito_trigger" {
-  source = "../../modules/lambda-trigger-cognito"
+# 1. Create the Lambda function
+module "auth_lambda" {
+  source        = "../../modules/lambda-function"
+  function_name = "cognito-pre-signup"
+  runtime       = "nodejs20.x"
+  handler       = "index.handler"
+  filename      = "lambda.zip"
+}
 
-  function_name = module.my_function.function_name
-  function_arn  = module.my_function.function_arn
+# 2. Grant Cognito permission to invoke it
+module "cognito_permission" {
+  source        = "../../modules/lambda-trigger-cognito"
+  function_name = module.auth_lambda.function_name
+  function_arn  = module.auth_lambda.function_arn
   user_pool_id  = aws_cognito_user_pool.main.id
+}
 
-  triggers = ["pre_sign_up", "post_confirmation"]
+# 3. Configure the actual triggers in the user pool
+resource "aws_cognito_user_pool" "main" {
+  name = "my-user-pool"
+
+  lambda_config {
+    pre_sign_up       = module.auth_lambda.function_arn
+    post_confirmation = module.auth_lambda.function_arn
+  }
 }
 ```
 
-## IAM Model
+## Why Permission-Only?
 
-This is a **push-based** trigger. The module creates an `aws_lambda_permission` resource-based policy allowing Cognito to invoke the function. No IAM role attachment is needed.
+Unlike S3, SNS, or SQS which have standalone trigger attachment resources, Cognito Lambda triggers can only be configured via the `lambda_config` block inside `aws_cognito_user_pool`. AWS doesn't provide a separate resource to attach triggers to an existing user pool.
+
+This module still provides value by:
+- Creating the correct `aws_lambda_permission` with the proper `source_arn` pattern
+- Keeping a consistent interface with other trigger modules
+
+## Available Trigger Types
+
+Configure these in your `aws_cognito_user_pool` resource's `lambda_config` block:
+
+| Attribute | Description |
+|-----------|-------------|
+| `pre_sign_up` | Called before a user is confirmed. Can auto-confirm, auto-verify, or reject. |
+| `post_confirmation` | Called after confirmation. Useful for welcome emails or initializing records. |
+| `pre_authentication` | Called before authentication. Can add validation or reject sign-in. |
+| `post_authentication` | Called after successful authentication. Useful for logging. |
+| `pre_token_generation` | Called before token generation. Can modify ID token claims. |
+| `custom_message` | Called before sending verification/MFA messages. Can customize content. |
+| `define_auth_challenge` | Determines the next challenge in custom auth flow. |
+| `create_auth_challenge` | Creates a custom authentication challenge (e.g., CAPTCHA). |
+| `verify_auth_challenge_response` | Verifies the user's response to a custom challenge. |
+| `user_migration` | Called when user doesn't exist. Enables migration from legacy systems. |
 
 ## Inputs
 
-### Required
-
-| Name | Type | Description |
-|------|------|-------------|
-| `function_name` | `string` | Name of the Lambda function. Used for resource naming and the Lambda permission. |
-| `function_arn` | `string` | ARN of the Lambda function. |
-| `user_pool_id` | `string` | ID of the Cognito User Pool. |
-| `triggers` | `list(string)` | List of Cognito trigger types to wire to this Lambda function. All listed triggers point to the same function. Possible values: |
-
-**Possible `triggers` values:**
-
-| Value | Description |
-|-------|-------------|
-| `"pre_sign_up"` | Called before a user is confirmed. Can auto-confirm users, auto-verify attributes, or reject sign-ups. |
-| `"post_confirmation"` | Called after a user is confirmed. Useful for sending welcome emails or initializing user records. |
-| `"pre_authentication"` | Called before authentication. Can add custom validation or reject sign-in attempts. |
-| `"post_authentication"` | Called after successful authentication. Useful for logging or analytics. |
-| `"pre_token_generation"` | Called before token generation. Can add, modify, or suppress claims in the ID token. |
-| `"custom_message"` | Called before sending a verification or MFA message. Can customize email/SMS content. |
-| `"define_auth_challenge"` | Called to determine the next challenge in custom auth flow. |
-| `"create_auth_challenge"` | Called to create a custom authentication challenge (e.g., CAPTCHA). |
-| `"verify_auth_challenge_response"` | Called to verify the user's response to a custom challenge. |
-| `"user_migration"` | Called during sign-in/forgot-password when the user doesn't exist in the pool. Enables migration from a legacy system. |
-
-### Optional
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `tags` | `map(string)` | `{}` | Map of tags (accepted for interface consistency). |
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `function_name` | `string` | yes | Name of the Lambda function (used for permission naming) |
+| `function_arn` | `string` | yes | ARN of the Lambda function |
+| `user_pool_id` | `string` | yes | ID of the Cognito User Pool |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| `lambda_config_id` | ID of the Cognito User Pool Lambda config. |
+| `permission_id` | ID of the Lambda permission resource |
