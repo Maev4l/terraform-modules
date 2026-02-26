@@ -51,6 +51,19 @@ variable "authorizer" {
   default = null
 }
 
+variable "cors" {
+  description = "CORS configuration. Set to true for permissive defaults, or an object for custom config. Set to null/false to disable."
+  type        = any
+  default     = null
+
+  validation {
+    condition = var.cors == null || var.cors == false || var.cors == true || (
+      try(var.cors.allow_origins, null) != null
+    )
+    error_message = "cors must be null, false, true, or an object with allow_origins."
+  }
+}
+
 variable "disable_execute_api_endpoint" {
   description = "Whether to disable the default execute API endpoint. Set to true to force traffic through custom domain only."
   type        = bool

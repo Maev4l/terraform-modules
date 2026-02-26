@@ -5,6 +5,19 @@ resource "aws_apigatewayv2_api" "this" {
   protocol_type                = "HTTP"
   disable_execute_api_endpoint = var.disable_execute_api_endpoint
   tags                         = var.tags
+
+  dynamic "cors_configuration" {
+    for_each = local.cors_enabled ? [local.cors_config] : []
+
+    content {
+      allow_origins     = cors_configuration.value.allow_origins
+      allow_methods     = cors_configuration.value.allow_methods
+      allow_headers     = cors_configuration.value.allow_headers
+      expose_headers    = cors_configuration.value.expose_headers
+      max_age           = cors_configuration.value.max_age
+      allow_credentials = cors_configuration.value.allow_credentials
+    }
+  }
 }
 
 resource "aws_apigatewayv2_stage" "this" {

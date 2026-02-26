@@ -2,6 +2,31 @@
 
 locals {
   create_authorizer = var.authorizer != null
+
+  # CORS configuration
+  cors_enabled = var.cors != null && var.cors != false
+
+  # Permissive defaults (like Serverless Framework cors: true)
+  cors_defaults = {
+    allow_origins     = ["*"]
+    allow_methods     = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
+    allow_headers     = ["Content-Type", "Authorization", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
+    expose_headers    = []
+    max_age           = 0
+    allow_credentials = false
+  }
+
+  # Resolve final CORS config: true uses defaults, object merges with defaults
+  cors_config = local.cors_enabled ? (
+    var.cors == true ? local.cors_defaults : {
+      allow_origins     = var.cors.allow_origins
+      allow_methods     = try(var.cors.allow_methods, local.cors_defaults.allow_methods)
+      allow_headers     = try(var.cors.allow_headers, local.cors_defaults.allow_headers)
+      expose_headers    = try(var.cors.expose_headers, local.cors_defaults.expose_headers)
+      max_age           = try(var.cors.max_age, local.cors_defaults.max_age)
+      allow_credentials = try(var.cors.allow_credentials, local.cors_defaults.allow_credentials)
+    }
+  ) : null
 }
 
 resource "aws_apigatewayv2_authorizer" "this" {
