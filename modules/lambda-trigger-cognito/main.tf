@@ -5,10 +5,13 @@
 # resource's lambda_config block - AWS doesn't support standalone trigger
 # attachment for Cognito.
 
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 resource "aws_lambda_permission" "this" {
   statement_id  = "AllowCognitoInvoke-${var.function_name}"
   action        = "lambda:InvokeFunction"
   function_name = var.function_arn
   principal     = "cognito-idp.amazonaws.com"
-  source_arn    = "arn:aws:cognito-idp:*:*:userpool/${var.user_pool_id}"
+  source_arn    = "arn:aws:cognito-idp:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:userpool/${var.user_pool_id}"
 }
