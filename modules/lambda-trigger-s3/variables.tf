@@ -29,16 +29,13 @@ variable "events" {
 
 # --- Optional ---
 
-variable "filter_prefix" {
-  description = "Object key prefix filter"
-  type        = string
-  default     = null
-}
-
-variable "filter_suffix" {
-  description = "Object key suffix filter"
-  type        = string
-  default     = null
+variable "filters" {
+  description = "List of filter objects with prefix and/or suffix"
+  type = list(object({
+    prefix = optional(string)
+    suffix = optional(string)
+  }))
+  default = [{}]  # Single empty filter = no filtering
 }
 
 variable "tags" {

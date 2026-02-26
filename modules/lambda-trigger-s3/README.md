@@ -16,8 +16,29 @@ module "s3_trigger" {
   bucket_arn    = aws_s3_bucket.uploads.arn
   events        = ["s3:ObjectCreated:*"]
 
-  filter_prefix = "uploads/"
-  filter_suffix = ".csv"
+  filters = [
+    { prefix = "uploads/", suffix = ".csv" }
+  ]
+}
+```
+
+### Multiple filters
+
+```hcl
+module "s3_trigger" {
+  source = "../../modules/lambda-trigger-s3"
+
+  function_name = module.my_function.function_name
+  function_arn  = module.my_function.function_arn
+  bucket_id     = aws_s3_bucket.uploads.id
+  bucket_arn    = aws_s3_bucket.uploads.arn
+  events        = ["s3:ObjectCreated:*"]
+
+  filters = [
+    { prefix = "images/", suffix = ".png" },
+    { prefix = "images/", suffix = ".jpg" },
+    { prefix = "docs/" }
+  ]
 }
 ```
 
@@ -41,8 +62,7 @@ This is a **push-based** trigger. The module creates an `aws_lambda_permission` 
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
-| `filter_prefix` | `string` | `null` | Object key prefix filter. Only objects whose key starts with this prefix trigger the function. Example: `"uploads/"`. |
-| `filter_suffix` | `string` | `null` | Object key suffix filter. Only objects whose key ends with this suffix trigger the function. Example: `".csv"`, `".json"`. |
+| `filters` | `list(object({ prefix = optional(string), suffix = optional(string) }))` | `[{}]` | List of filter objects. Each object creates a separate notification rule. Use `prefix` to filter by key prefix, `suffix` to filter by key suffix. |
 | `tags` | `map(string)` | `{}` | Map of tags (accepted for interface consistency). |
 
 ## Outputs
