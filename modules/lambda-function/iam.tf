@@ -73,8 +73,8 @@ resource "aws_iam_role_policy_attachment" "vpc" {
 # --- Additional policies provided by caller ---
 
 resource "aws_iam_role_policy_attachment" "additional" {
-  for_each = toset(var.additional_policy_arns)
+  count = length(var.additional_policy_arns)
 
   role       = local.role_name
-  policy_arn = each.value
+  policy_arn = var.additional_policy_arns[count.index]
 }
