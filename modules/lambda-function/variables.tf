@@ -105,7 +105,7 @@ variable "attach_log_policy" {
 variable "log_retention_in_days" {
   description = "CloudWatch Log Group retention in days"
   type        = number
-  default     = 14
+  default     = 7
 }
 
 # --- Optional: VPC ---
@@ -118,6 +118,14 @@ variable "subnet_ids" {
 
 variable "security_group_ids" {
   description = "List of security group IDs for VPC configuration"
+  type        = list(string)
+  default     = []
+}
+
+# --- Optional: Additional IAM policies ---
+
+variable "additional_policy_arns" {
+  description = "List of additional IAM policy ARNs to attach to the execution role"
   type        = list(string)
   default     = []
 }
