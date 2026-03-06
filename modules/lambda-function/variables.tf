@@ -86,20 +86,6 @@ variable "reserved_concurrent_executions" {
   default     = null
 }
 
-# --- Optional: IAM ---
-
-variable "existing_role_arn" {
-  description = "ARN of an existing IAM role to use. When null (default), the module creates a role."
-  type        = string
-  default     = null
-}
-
-variable "attach_log_policy" {
-  description = "Whether to attach CloudWatch Logs policy to a BYO role. Only relevant when existing_role_arn is set."
-  type        = bool
-  default     = true
-}
-
 # --- Optional: Logging ---
 
 variable "log_retention_in_days" {

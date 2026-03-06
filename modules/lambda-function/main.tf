@@ -1,9 +1,7 @@
 # Edited by CLAUDE
 
 locals {
-  create_role = var.existing_role_arn == null
-  role_arn    = local.create_role ? aws_iam_role.this[0].arn : var.existing_role_arn
-  has_vpc     = length(var.subnet_ids) > 0 && length(var.security_group_ids) > 0
+  has_vpc = length(var.subnet_ids) > 0 && length(var.security_group_ids) > 0
 
   # Packaging mode
   is_zip   = var.zip != null
@@ -17,7 +15,7 @@ locals {
 
 resource "aws_lambda_function" "this" {
   function_name                  = var.function_name
-  role                           = local.role_arn
+  role                           = aws_iam_role.this.arn
   description                    = var.description
   memory_size                    = var.memory_size
   timeout                        = var.timeout

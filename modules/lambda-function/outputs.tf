@@ -16,13 +16,13 @@ output "invoke_arn" {
 }
 
 output "role_name" {
-  description = "Name of the IAM execution role (null if BYO role)"
-  value       = local.create_role ? aws_iam_role.this[0].name : null
+  description = "Name of the IAM execution role"
+  value       = aws_iam_role.this.name
 }
 
 output "role_arn" {
   description = "ARN of the IAM execution role"
-  value       = local.role_arn
+  value       = aws_iam_role.this.arn
 }
 
 output "log_group_name" {
