@@ -24,11 +24,12 @@ resource "aws_lambda_function" "this" {
   layers                         = local.is_zip ? var.layers : []
 
   # Packaging mode
-  package_type     = local.is_zip ? "Zip" : "Image"
-  filename         = local.is_zip ? var.zip.filename : null
-  runtime          = local.is_zip ? var.zip.runtime : null
-  handler          = local.is_zip ? var.zip.handler : null
-  source_code_hash = local.is_zip ? filebase64sha256(var.zip.filename) : null
+  package_type = local.is_zip ? "Zip" : "Image"
+  filename     = local.is_zip ? var.zip.filename : null
+  runtime      = local.is_zip ? var.zip.runtime : null
+  handler      = local.is_zip ? var.zip.handler : null
+  # Use provided hash if available, otherwise compute from filename
+  source_code_hash = local.is_zip ? coalesce(var.zip.hash, filebase64sha256(var.zip.filename)) : null
   image_uri        = local.is_image ? var.image.uri : null
 
   architectures = [var.architecture]

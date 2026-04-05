@@ -15,6 +15,7 @@ variable "zip" {
     filename = string
     runtime  = string
     handler  = string
+    hash     = optional(string) # Pre-computed base64-encoded SHA256 hash; if omitted, computed from filename
   })
   default = null
 }
