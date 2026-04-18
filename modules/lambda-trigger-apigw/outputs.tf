@@ -29,3 +29,10 @@ output "authorizer_id" {
   description = "ID of the JWT authorizer (null if no authorizer configured)"
   value       = local.create_authorizer ? aws_apigatewayv2_authorizer.this[0].id : null
 }
+
+# Map of integration logical name → integration ID. Exposes each integration
+# so consumers can reference them by the same key they used as input.
+output "integration_ids" {
+  description = "Map of integration logical name → integration ID."
+  value       = { for k, int in aws_apigatewayv2_integration.this : k => int.id }
+}

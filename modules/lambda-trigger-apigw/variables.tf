@@ -2,24 +2,28 @@
 
 # --- Required ---
 
-variable "function_name" {
-  description = "Name of the Lambda function (used for resource naming)"
+variable "api_name" {
+  description = "Name of the HTTP API (used for resource naming and tags)."
   type        = string
 }
 
-variable "function_arn" {
-  description = "ARN of the Lambda function"
-  type        = string
-}
+variable "integrations" {
+  description = <<-EOT
+    Map of Lambda integrations keyed by logical name (e.g. "api", "renderer").
+    Each entry wires one Lambda function to one or more routes.
+    Routes use HTTP API route-key syntax: "METHOD /path" (e.g. "POST /api/resumes/{id}/publish").
+  EOT
+  type = map(object({
+    function_name = string
+    function_arn  = string
+    invoke_arn    = string
+    routes        = list(string)
+  }))
 
-variable "invoke_arn" {
-  description = "Invocation ARN of the Lambda function"
-  type        = string
-}
-
-variable "routes" {
-  description = "List of route keys (e.g. [\"GET /users\", \"POST /users\"])"
-  type        = list(string)
+  validation {
+    condition     = length(var.integrations) > 0
+    error_message = "At least one integration is required."
+  }
 }
 
 # --- Optional ---
