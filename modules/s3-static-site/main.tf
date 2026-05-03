@@ -3,6 +3,8 @@
 resource "aws_s3_bucket" "this" {
   bucket = var.site_name
   tags   = var.tags
+  # Allow `terraform destroy` to remove the bucket even when objects remain.
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {

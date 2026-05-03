@@ -83,6 +83,8 @@ module "order_processor_stream" {
 
 resource "aws_s3_bucket" "attachments" {
   bucket = "order-attachments"
+  # Allow `terraform destroy` to remove the bucket even when objects remain.
+  force_destroy = true
 }
 
 module "order_processor_s3" {
