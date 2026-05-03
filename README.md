@@ -19,6 +19,7 @@ Core module for creating Lambda functions with IAM, CloudWatch logging, and opti
 | [lambda-trigger-cognito](modules/lambda-trigger-cognito/) | Cognito User Pool trigger hooks | Push (resource-based) |
 | [lambda-trigger-sns](modules/lambda-trigger-sns/) | SNS topic subscription with filter policy | Push (resource-based) |
 | [lambda-trigger-sqs](modules/lambda-trigger-sqs/) | SQS queue polling with batching and partial failure reporting | Pull (role-based) |
+| [lambda-trigger-scheduler](modules/lambda-trigger-scheduler/) | EventBridge Scheduler schedule (cron, rate, one-time) invoking a Lambda | Push (role-based assume-role) |
 
 ### Static Hosting
 
@@ -38,9 +39,17 @@ Core module for creating Lambda functions with IAM, CloudWatch logging, and opti
 | [remote-source](examples/remote-source/) | Referencing modules from GitHub |
 | [sns](examples/sns/) | Lambda triggered by SNS topic |
 | [sqs](examples/sqs/) | Lambda triggered by SQS queue |
+| [scheduler](examples/scheduler/) | Lambda triggered by an EventBridge Scheduler schedule |
 | [static-site](examples/static-site/) | S3 static site with CloudFront and custom domain |
 
 ## Requirements
 
 - Terraform >= 1.5
 - AWS Provider >= 5.0
+
+## Module designs
+
+Per-module design docs and historical implementation plans live under [`docs/superpowers/`](docs/superpowers/):
+
+- [`specs/`](docs/superpowers/specs/) — one design doc per module (purpose, architecture, components, data flow, error handling, testing)
+- [`plans/`](docs/superpowers/plans/) — frozen migration records of the implementation work (preserved from the previous OpenSpec workflow; not intended to be re-executed)
