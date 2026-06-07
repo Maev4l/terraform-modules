@@ -63,3 +63,42 @@ resource "aws_iam_role_policy_attachment" "additional" {
   role       = aws_iam_role.this.name
   policy_arn = var.additional_policy_arns[count.index]
 }
+
+# --- EFS access policy (when an EFS file system is mounted) ---
+
+data "aws_iam_policy_document" "efs" {
+  count = local.has_efs ? 1 : 0
+
+  statement {
+    actions = [
+      "elasticfilesystem:ClientMount",
+      "elasticfilesystem:ClientWrite",
+      "elasticfilesystem:ClientRootAccess",
+    ]
+
+    # AWS does not accept an access-point ARN as the IAM resource for
+    # elasticfilesystem:Client* actions; scope to the access point via condition instead.
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "elasticfilesystem:AccessPointArn"
+      values   = [var.efs_config.access_point_arn]
+    }
+  }
+}
+
+resource "aws_iam_policy" "efs" {
+  count = local.has_efs ? 1 : 0
+
+  name   = "${var.function_name}-efs"
+  policy = data.aws_iam_policy_document.efs[0].json
+  tags   = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "efs" {
+  count = local.has_efs ? 1 : 0
+
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.efs[0].arn
+}

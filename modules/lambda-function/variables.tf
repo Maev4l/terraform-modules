@@ -109,6 +109,22 @@ variable "security_group_ids" {
   default     = []
 }
 
+# --- Optional: EFS ---
+
+variable "efs_config" {
+  description = "EFS mount configuration. When set, mounts an EFS access point into the function at local_mount_path (which must start with /mnt). Requires VPC config (subnet_ids + security_group_ids). The caller is responsible for ensuring EFS mount targets exist in the function's subnets before the function is created (use depends_on)."
+  type = object({
+    access_point_arn = string
+    local_mount_path = string
+  })
+  default = null
+
+  validation {
+    condition     = var.efs_config == null || startswith(var.efs_config.local_mount_path, "/mnt")
+    error_message = "efs_config.local_mount_path must start with /mnt (AWS Lambda requirement)."
+  }
+}
+
 # --- Optional: Additional IAM policies ---
 
 variable "additional_policy_arns" {

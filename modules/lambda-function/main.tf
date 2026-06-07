@@ -11,6 +11,7 @@ locals {
     var.image.entry_point != null ||
     var.image.working_directory != null
   )
+  has_efs = var.efs_config != null
 }
 
 resource "aws_lambda_function" "this" {
@@ -65,6 +66,15 @@ resource "aws_lambda_function" "this" {
     }
   }
 
+  dynamic "file_system_config" {
+    for_each = local.has_efs ? [1] : []
+
+    content {
+      arn              = var.efs_config.access_point_arn
+      local_mount_path = var.efs_config.local_mount_path
+    }
+  }
+
   depends_on = [
     aws_cloudwatch_log_group.this,
   ]
@@ -75,6 +85,11 @@ resource "aws_lambda_function" "this" {
     precondition {
       condition     = (var.zip != null) != (var.image != null)
       error_message = "Exactly one of 'zip' or 'image' must be provided."
+    }
+
+    precondition {
+      condition     = !local.has_efs || local.has_vpc
+      error_message = "efs_config requires VPC configuration (both subnet_ids and security_group_ids must be set)."
     }
   }
 }

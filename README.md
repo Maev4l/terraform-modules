@@ -8,11 +8,11 @@ A collection of composable Terraform modules for deploying AWS infrastructure wi
 
 ### Lambda
 
-Core module for creating Lambda functions with IAM, CloudWatch logging, and optional VPC support. Supports both zip and container image packaging.
+Core module for creating Lambda functions with IAM, CloudWatch logging, and optional VPC and EFS support. Supports both zip and container image packaging.
 
 | Module | Description | IAM Model |
 |--------|-------------|-----------|
-| [lambda-function](modules/lambda-function/) | Core Lambda function with IAM role, CloudWatch log group, VPC support | Creates role (or BYO) |
+| [lambda-function](modules/lambda-function/) | Core Lambda function with IAM role, CloudWatch log group, VPC support, optional EFS mount | Creates role (or BYO) |
 | [lambda-trigger-apigw](modules/lambda-trigger-apigw/) | HTTP API (API Gateway v2) with routes, custom domain, JWT authorizer | Push (resource-based) |
 | [lambda-trigger-dynamodb](modules/lambda-trigger-dynamodb/) | DynamoDB Streams event source mapping with filtering | Pull (role-based) |
 | [lambda-trigger-s3](modules/lambda-trigger-s3/) | S3 bucket notifications on object events | Push (resource-based) |
@@ -36,6 +36,7 @@ Core module for creating Lambda functions with IAM, CloudWatch logging, and opti
 | [api-gateway-cognito](examples/api-gateway-cognito/) | HTTP API with JWT authorizer (Cognito) |
 | [multi-trigger](examples/multi-trigger/) | Lambda with multiple triggers |
 | [container-image](examples/container-image/) | Lambda from ECR container image |
+| [efs](examples/efs/) | Lambda with an EFS access point mounted |
 | [remote-source](examples/remote-source/) | Referencing modules from GitHub |
 | [sns](examples/sns/) | Lambda triggered by SNS topic |
 | [sqs](examples/sqs/) | Lambda triggered by SQS queue |

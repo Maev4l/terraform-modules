@@ -80,7 +80,7 @@ module "my_function" {
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
-| `log_retention_in_days` | `number` | `14` | Number of days to retain CloudWatch logs. Possible values: `1`, `3`, `5`, `7`, `14`, `30`, `60`, `90`, `120`, `150`, `180`, `365`, `400`, `545`, `731`, `1096`, `1827`, `2192`, `2557`, `2922`, `3288`, `3653`, `0` (never expire). |
+| `log_retention_in_days` | `number` | `7` | Number of days to retain CloudWatch logs. Possible values: `1`, `3`, `5`, `7`, `14`, `30`, `60`, `90`, `120`, `150`, `180`, `365`, `400`, `545`, `731`, `1096`, `1827`, `2192`, `2557`, `2922`, `3288`, `3653`, `0` (never expire). |
 
 ### Optional: VPC
 
@@ -88,6 +88,23 @@ module "my_function" {
 |------|------|---------|-------------|
 | `subnet_ids` | `list(string)` | `[]` | List of subnet IDs for VPC configuration. Must be provided together with `security_group_ids`. When both are set, the Lambda function runs inside the VPC. |
 | `security_group_ids` | `list(string)` | `[]` | List of security group IDs for VPC configuration. Must be provided together with `subnet_ids`. |
+
+### Optional: EFS
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `efs_config` | `object` | `null` | EFS mount configuration. When set, mounts an EFS access point into the function. Requires VPC config. See fields below. |
+
+**`efs_config` object fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `access_point_arn` | `string` | ARN of the EFS access point to mount. The module attaches a least-privilege IAM policy (`elasticfilesystem:ClientMount`/`ClientWrite`/`ClientRootAccess`) scoped to this access point. |
+| `local_mount_path` | `string` | Path where the file system is mounted in the function. **Must start with `/mnt`** (AWS requirement). |
+
+**Caveats:**
+- Requires `subnet_ids` and `security_group_ids` (EFS access needs VPC networking). A precondition enforces this.
+- The EFS **mount targets must exist in the function's subnets before the function is created**. The module cannot infer this ordering from an ARN string — add `depends_on = [aws_efs_mount_target.<name>]` in the calling configuration (see `examples/efs/`).
 
 ### Optional: Tags
 
