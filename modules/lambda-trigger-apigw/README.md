@@ -17,7 +17,7 @@ Creates an HTTP API Gateway v2 endpoint with a JWT authorizer and fans out multi
 
 ```hcl
 module "api" {
-  source = "github.com/Maev4l/terraform-modules//modules/lambda-trigger-apigw?ref=v1.7.0"  # new tag cut after this rewrite
+  source = "github.com/Maev4l/terraform-modules//modules/lambda-trigger-apigw?ref=v1.8.1"
 
   api_name                     = "visual-resumes"
   disable_execute_api_endpoint = false   # required when fronted by CloudFront
